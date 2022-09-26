@@ -2,13 +2,13 @@ package me.luna.jaroptimizer
 
 import org.apache.bcel.Const
 import org.apache.bcel.classfile.*
+import java.io.DataInputStream
 import java.io.File
-import java.io.FileOutputStream
 import java.io.InputStream
+import java.util.zip.Deflater
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import kotlin.streams.toList
 
 fun main(args: Array<String>) {
     var input: String? = null
@@ -42,10 +42,11 @@ fun main(args: Array<String>) {
 
     val cachedFiles = unpack(File(input))
 
-    val classes = cachedFiles
+    val classes = cachedFiles.asSequence()
         .filter { it.value != null }
         .filter { it.key.endsWith(".class") }
         .map { ClassFile(it.key, it.key.substring(0, it.key.length - 6), it.value!!) }
+        .toList()
 
     val dependencyMap = readAllClassDependencies(classes)
 
@@ -62,7 +63,7 @@ fun main(args: Array<String>) {
 private fun unpack(input: File): MutableMap<String, ByteArray?> {
     val files = mutableMapOf<String, ByteArray?>()
 
-    ZipInputStream(input.inputStream()).use { stream ->
+    ZipInputStream(input.inputStream().buffered(1024 * 1024)).use { stream ->
         while (true) {
             val entry = stream.nextEntry ?: break
             files[entry.name] = if (entry.isDirectory) null else stream.readBytes()
@@ -77,7 +78,8 @@ private fun repack(files: MutableMap<String, ByteArray?>, output: File) {
         output.delete()
     }
 
-    ZipOutputStream(FileOutputStream(output)).use { stream ->
+    ZipOutputStream(output.outputStream().buffered(1024 * 1024)).use { stream ->
+        stream.setLevel(Deflater.BEST_COMPRESSION)
         files.remove("META-INF/MANIFEST.MF")?.let {
             stream.putNextEntry(ZipEntry("META-INF/MANIFEST.MF"))
             stream.write(it)
@@ -97,13 +99,12 @@ private fun repack(files: MutableMap<String, ByteArray?>, output: File) {
 private fun readAllClassDependencies(
     classes: List<ClassFile>
 ): Map<String, MutableSet<String>> {
-    return classes.parallelStream()
+    return classes.asSequence()
         .map { classFile ->
-            classFile.bytes.inputStream().use {
+            DataInputStream(classFile.bytes.inputStream()).use {
                 classFile.classPath to readClassDependencies(it)
             }
         }
-        .toList()
         .toMap()
 }
 
@@ -129,9 +130,11 @@ private fun readClassDependencies(stream: InputStream): MutableSet<String> {
             var i = 0
             while (i < desc.length) {
                 if (desc[i] == 'L') {
-                    val indexOf = desc.indexOf(';', i)
-                    set.add(desc.substring(++i, indexOf))
-                    i = indexOf
+                    val prev = ++i
+                    while (desc[i] != ';') {
+                        i++
+                    }
+                    set.add(desc.substring(prev, i))
                 }
                 i++
             }
@@ -170,22 +173,4 @@ private fun processDependencies(
     return set
 }
 
-private data class ClassFile(val path: String, val classPath: String, val bytes: ByteArray) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ClassFile) return false
-
-        if (path != other.path) return false
-        if (classPath != other.classPath) return false
-        if (!bytes.contentEquals(other.bytes)) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = path.hashCode()
-        result = 31 * result + classPath.hashCode()
-        result = 31 * result + bytes.contentHashCode()
-        return result
-    }
-}
+private class ClassFile(val path: String, val classPath: String, val bytes: ByteArray)

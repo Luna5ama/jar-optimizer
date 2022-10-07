@@ -1,1 +1,1 @@
-rootProject.name = "JarOptimizer"
+rootProject.name = "jaroptimizer"

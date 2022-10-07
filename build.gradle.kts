@@ -3,16 +3,26 @@ plugins {
     application
     `java-gradle-plugin`
     `maven-publish`
+    id("com.gradle.plugin-publish").version("1.0.0")
 }
 
 gradlePlugin {
     plugins {
         create("jarOptimizer") {
             id = "me.luna.jaroptimizer"
+            displayName = "JarOptimizer"
+            description = "Simple jar file optimizing tool"
             implementationClass = "me.luna.jaroptimizer.JarOptimizerPlugin"
         }
     }
 }
+
+pluginBundle {
+    website = "https://github.com/Luna5ama/JarOptimizer"
+    vcsUrl = "https://github.com/Luna5ama/JarOptimizer"
+    tags = listOf("java", "jar", "optimization")
+}
+
 group = "me.luna"
 version = "1.1"
 
@@ -67,20 +77,5 @@ tasks {
 
     artifacts {
         archives(standaloneJar)
-    }
-}
-
-publishing {
-    repositories {
-        maven("https://maven.pkg.github.com/Luna5ama/JarOptimizer") {
-            val githubProperty = runCatching {
-                org.jetbrains.kotlin.konan.properties.loadProperties("${projectDir.absolutePath}/github.properties")
-            }.getOrNull()
-
-            credentials {
-                username = githubProperty?.getProperty("username") ?: System.getenv("USERNAME")
-                password = githubProperty?.getProperty("token") ?: System.getenv("TOKEN")
-            }
-        }
     }
 }

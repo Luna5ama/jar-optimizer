@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>me.luna.jaroptimizer</groupId>
+  <artifactId>me.luna.jaroptimizer.gradle.plugin</artifactId>
+  <version>1.1</version>
+  <packaging>pom</packaging>
+  <name>JarOptimizer</name>
+  <description>Simple jar file optimizing tool</description>
+  <dependencies>
+    <dependency>
+      <groupId>me.luna</groupId>
+      <artifactId>jaroptimizer</artifactId>
+      <version>1.1</version>
+    </dependency>
+  </dependencies>
+</project>

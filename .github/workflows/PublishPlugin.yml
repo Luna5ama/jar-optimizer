@@ -1,0 +1,54 @@
+name: PublishPlugin
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout previous maven repo
+        uses: actions/checkout@v3
+        with:
+          ref: maven-repo
+
+      - name: Copy to maven local
+        run: |
+          git checkout --orphan maven-repo-temp
+          mkdir -p ~/.m2/repository
+          /bin/cp -R $GITHUB_WORKSPACE/* ~/.m2/repository
+
+      - name: Checkout master
+        uses: actions/checkout@v3
+        with:
+          ref: master
+
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Gradle cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Gradle publish to local
+        run: ./gradlew --build-cache publishToMavenLocal
+
+      - name: Commit and push
+        run: |
+          git checkout --orphan maven-repo-temp
+          git rm -rf .
+          mkdir -p ./me/luna
+          /bin/cp -R ~/.m2/repository/me/luna/* ./me/luna
+          git add $GITHUB_WORKSPACE
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git commit -a -m 'Updated maven repo' || true
+          git push --force origin maven-repo-temp:maven-repo

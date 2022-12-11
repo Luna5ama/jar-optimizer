@@ -1,0 +1,14 @@
+name: Publish to FastMinecraft/maven-repo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  call-workflow:
+    uses: FastMinecraft/maven-repo/.github/workflows/MavenPublish.yml@workflows
+    with:
+      target-owner: FastMinecraft
+      target-repo: maven-repo
+      target-branch: master
+    secrets:
+      token: ${{ secrets.MAVEN_REPO_GIT }}

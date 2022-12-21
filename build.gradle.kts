@@ -1,9 +1,13 @@
+group = "me.luna"
+version = "1.1"
+
 plugins {
-    kotlin("jvm") version "1.7.10"
+    kotlin("jvm")
     application
     `java-gradle-plugin`
     `maven-publish`
     id("com.gradle.plugin-publish").version("1.0.0")
+    id("dev.fastmc.maven-repo").version("1.0.0")
 }
 
 gradlePlugin {
@@ -22,9 +26,6 @@ pluginBundle {
     vcsUrl = "https://github.com/Luna5ama/JarOptimizer"
     tags = listOf("java", "jar", "optimization")
 }
-
-group = "me.luna"
-version = "1.1"
 
 repositories {
     mavenCentral()

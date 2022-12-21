@@ -5,10 +5,10 @@ on:
 
 jobs:
   call-workflow:
-    uses: FastMinecraft/maven-repo/.github/workflows/MavenPublish.yml@workflows
+    uses: FastMinecraft/maven-repo/.github/workflows/MavenPublishNew.yml@main
     with:
       target-owner: FastMinecraft
       target-repo: maven-repo
-      target-branch: master
+      target-branch: repo
     secrets:
       token: ${{ secrets.MAVEN_REPO_GIT }}

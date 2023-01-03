@@ -1,7 +1,6 @@
 package dev.luna.jaroptimizer
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
-import it.unimi.dsi.fastutil.objects.ObjectSets
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.CopyActionProcessingStream
@@ -14,7 +13,7 @@ import java.io.File
 @Suppress("LeakingThis")
 abstract class OptimizeJarTask : Jar() {
     @get:Input
-    abstract val jarTask : Property<Jar>
+    abstract val jarTask: Property<Jar>
 
     @get:Input
     abstract val keeps: SetProperty<String>
@@ -37,7 +36,8 @@ abstract class OptimizeJarTask : Jar() {
         return RemapJarAction(jarFile.get().asFile, archiveFile.get().asFile, keeps.get())
     }
 
-    class RemapJarAction(private val inputFile: File, private val outputFile: File, private val keeps: Set<String>) : CopyAction {
+    class RemapJarAction(private val inputFile: File, private val outputFile: File, private val keeps: Set<String>) :
+        CopyAction {
         override fun execute(stream: CopyActionProcessingStream): WorkResult {
             JarOptimizer().optimize(inputFile, outputFile, ObjectOpenHashSet(keeps))
             return WorkResults.didWork(true)

@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.gradle.utils.extendsFrom
 
 group = "dev.luna"
 version = "1.2-SNAPSHOT"

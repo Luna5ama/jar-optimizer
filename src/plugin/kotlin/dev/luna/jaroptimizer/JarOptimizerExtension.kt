@@ -6,6 +6,7 @@ import org.gradle.jvm.tasks.Jar
 import java.util.*
 import javax.inject.Inject
 
+@Suppress("unused")
 abstract class JarOptimizerExtension {
     @get:Inject
     internal abstract val project: Project

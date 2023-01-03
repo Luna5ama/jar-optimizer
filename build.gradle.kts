@@ -1,5 +1,5 @@
-group = "me.luna"
-version = "1.1"
+group = "dev.luna"
+version = "1.2-SNAPSHOT"
 
 plugins {
     kotlin("jvm")
@@ -13,10 +13,10 @@ plugins {
 gradlePlugin {
     plugins {
         create("jarOptimizer") {
-            id = "me.luna.jaroptimizer"
-            displayName = "JarOptimizer"
+            id = "dev.luna.jaroptimizer"
+            displayName = "Jar Optimizer"
             description = "Simple jar file optimizing tool"
-            implementationClass = "me.luna.jaroptimizer.JarOptimizerPlugin"
+            implementationClass = "dev.luna.jaroptimizer.JarOptimizerPlugin"
         }
     }
 }
@@ -59,7 +59,7 @@ tasks {
 
         manifest {
             attributes(
-                "Main-Class" to "me.luna.jaroptimizer.JarOptimizer",
+                "Main-Class" to "dev.luna.jaroptimizer.JarOptimizer",
             )
         }
 

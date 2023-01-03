@@ -1,4 +1,4 @@
-package me.luna.jaroptimizer
+package dev.luna.jaroptimizer
 
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider

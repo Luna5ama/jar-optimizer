@@ -1,4 +1,4 @@
-package me.luna.jaroptimizer
+package dev.luna.jaroptimizer
 
 import org.apache.bcel.Const
 import org.apache.bcel.classfile.*

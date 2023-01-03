@@ -1,4 +1,4 @@
-rootProject.name = "jaroptimizer"
+rootProject.name = "jar-optimizer"
 
 pluginManagement {
     repositories {

@@ -1,4 +1,4 @@
-package me.luna.jaroptimizer
+package dev.luna.jaroptimizer
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection

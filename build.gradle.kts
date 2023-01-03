@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-group = "dev.luna"
+group = "dev.luna5ama"
 version = "1.2-SNAPSHOT"
 
 plugins {
@@ -13,18 +13,18 @@ plugins {
 
 gradlePlugin {
     plugins {
-        create("jarOptimizer") {
-            id = "dev.luna.jaroptimizer"
+        create("jar-optimizer") {
+            id = "dev.luna5ama.jar-optimizer"
             displayName = "Jar Optimizer"
             description = "Simple jar file optimizing tool"
-            implementationClass = "dev.luna.jaroptimizer.JarOptimizerPlugin"
+            implementationClass = "dev.luna5ama.jaroptimizer.JarOptimizerPlugin"
         }
     }
 }
 
 pluginBundle {
-    website = "https://github.com/Luna5ama/JarOptimizer"
-    vcsUrl = "https://github.com/Luna5ama/JarOptimizer"
+    website = "https://github.com/Luna5ama/jar-optimizer"
+    vcsUrl = "https://github.com/Luna5ama/jar-optimizer"
     tags = listOf("java", "jar", "optimization")
 }
 
@@ -69,7 +69,7 @@ tasks {
 
         manifest {
             attributes(
-                "Main-Class" to "dev.luna.jaroptimizer.JarOptimizer",
+                "Main-Class" to "dev.luna5ama.jaroptimizer.JarOptimizer",
             )
         }
 

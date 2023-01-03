@@ -1,4 +1,4 @@
-package dev.luna.jaroptimizer
+package dev.luna5ama.jaroptimizer
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import org.gradle.api.file.RegularFileProperty

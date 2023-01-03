@@ -1,4 +1,4 @@
-package dev.luna.jaroptimizer
+package dev.luna5ama.jaroptimizer
 
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider

@@ -1,5 +1,6 @@
 package dev.luna.jaroptimizer
 
+import it.unimi.dsi.fastutil.objects.*
 import org.apache.bcel.Const
 import org.apache.bcel.classfile.*
 import java.io.DataInputStream
@@ -11,20 +12,24 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 class JarOptimizer {
-    fun optimize(input: File, output: File, keeps: List<String>) {
+    fun optimize(input: File, output: File, keeps: ObjectSet<String>) {
         require(input.exists()) { "Input file does not exist" }
 
         val cachedFiles = unpack(input)
 
-        val classes = cachedFiles.asSequence()
+        val classes = ObjectArrayList<ClassFile>()
+        cachedFiles.asSequence()
             .filter { it.value != null }
             .filter { it.key.endsWith(".class") }
             .map { ClassFile(it.key, it.key.substring(0, it.key.length - 6), it.value!!) }
-            .toList()
+            .toCollection(classes)
 
         val dependencyMap = readAllClassDependencies(classes)
 
-        val set = processDependencies(classes, dependencyMap, keeps.map { it.replace('.', '/') })
+        val formattedKeeps = ObjectArrayList<String>()
+        keeps.mapTo(formattedKeeps) { it.replace('.', '/') }
+
+        val set = propagateDependencies(classes, dependencyMap, formattedKeeps)
         classes.forEach { classFile ->
             if (!set.contains(classFile.classPath)) {
                 cachedFiles.remove(classFile.path)
@@ -34,8 +39,8 @@ class JarOptimizer {
         repack(cachedFiles, output)
     }
 
-    private fun unpack(input: File): MutableMap<String, ByteArray?> {
-        val files = mutableMapOf<String, ByteArray?>()
+    private fun unpack(input: File): Object2ObjectMap<String, ByteArray?> {
+        val files = Object2ObjectOpenHashMap<String, ByteArray?>()
 
         ZipInputStream(input.inputStream().buffered(1024 * 1024)).use { stream ->
             while (true) {
@@ -47,7 +52,7 @@ class JarOptimizer {
         return files
     }
 
-    private fun repack(files: MutableMap<String, ByteArray?>, output: File) {
+    private fun repack(files: Object2ObjectMap<String, ByteArray?>, output: File) {
         val dir = output.absoluteFile.parentFile
         if (!dir.exists()) {
             dir.mkdirs()
@@ -57,11 +62,6 @@ class JarOptimizer {
 
         ZipOutputStream(output.outputStream().buffered(1024 * 1024)).use { stream ->
             stream.setLevel(Deflater.BEST_COMPRESSION)
-            files.remove("META-INF/MANIFEST.MF")?.let {
-                stream.putNextEntry(ZipEntry("META-INF/MANIFEST.MF"))
-                stream.write(it)
-                stream.closeEntry()
-            }
             files.forEach { (path, bytes) ->
                 stream.putNextEntry(ZipEntry(path))
                 if (bytes != null) {
@@ -74,21 +74,21 @@ class JarOptimizer {
 
 
     private fun readAllClassDependencies(
-        classes: List<ClassFile>
-    ): Map<String, MutableSet<String>> {
-        return classes.asSequence()
-            .map { classFile ->
-                DataInputStream(classFile.bytes.inputStream()).use {
-                    classFile.classPath to readClassDependencies(it)
-                }
+        classes: ObjectList<ClassFile>
+    ): Object2ObjectMap<String, ObjectSet<String>> {
+        val result = Object2ObjectOpenHashMap<String, ObjectSet<String>>()
+        classes.forEach { classFile ->
+            DataInputStream(classFile.bytes.inputStream()).use {
+                result[classFile.classPath] = readClassDependencies(it)
             }
-            .toMap()
+        }
+        return result
     }
 
-    private fun readClassDependencies(stream: InputStream): MutableSet<String> {
+    private fun readClassDependencies(stream: InputStream): ObjectSet<String> {
         val clazz = ClassParser(stream, "").parse()
         val constPool = clazz.constantPool
-        val set = mutableSetOf<String>()
+        val set = ObjectOpenHashSet<String>()
 
         constPool.accept(DescendingVisitor(clazz, object : EmptyVisitor() {
             override fun visitConstantClass(cC: ConstantClass) {
@@ -121,28 +121,28 @@ class JarOptimizer {
         return set
     }
 
-    private fun processDependencies(
-        classes: List<ClassFile>,
-        map: Map<String, Set<String>>,
-        keeps: List<String>
-    ): Set<String> {
-        val set = mutableSetOf<String>()
-        val queue = ArrayDeque<String>()
+    private fun propagateDependencies(
+        classes: ObjectList<ClassFile>,
+        map: Object2ObjectMap<String, ObjectSet<String>>,
+        keeps: ObjectList<String>
+    ): ObjectSet<String> {
+        val set = ObjectOpenHashSet<String>()
+        val queue = ObjectArrayFIFOQueue<String>()
 
         if (keeps.isNotEmpty()) {
             classes.forEach { classFile ->
                 if (keeps.any { classFile.classPath.startsWith(it) }) {
                     set.add(classFile.classPath)
-                    queue.add(classFile.classPath)
+                    queue.enqueue(classFile.classPath)
                 }
             }
         }
 
-        while (queue.isNotEmpty()) {
-            val path = queue.removeFirst()
+        while (!queue.isEmpty) {
+            val path = queue.dequeue()
             map[path]?.forEach {
                 if (set.add(it)) {
-                    queue.add(it)
+                    queue.enqueue(it)
                 }
             }
         }
@@ -157,7 +157,7 @@ class JarOptimizer {
         fun main(args: Array<String>) {
             var input: String? = null
             var output: String? = null
-            val keeps = mutableListOf<String>()
+            val keeps = ObjectOpenHashSet<String>()
 
             var i = 0
             while (i < args.size) {

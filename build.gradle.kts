@@ -45,7 +45,7 @@ val pluginSourceSet = sourceSets.create("plugin").apply {
 }
 
 dependencies {
-
+    library("it.unimi.dsi:fastutil:8.5.11")
     library("org.apache.bcel:bcel:6.6.0")
     library(kotlin("stdlib-jdk8"))
 }

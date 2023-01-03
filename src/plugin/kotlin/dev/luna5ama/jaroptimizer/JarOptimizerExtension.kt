@@ -14,7 +14,7 @@ abstract class JarOptimizerExtension {
     fun optimize(jarTask: String, vararg keeps: String) {
         project.afterEvaluate { project ->
             project.tasks.create("optimize${jarTask.capitalize()}", OptimizeJarTask::class.java) {
-                it.jarTask.set(this.project.tasks.named(jarTask, Jar::class.java))
+                it.setup(project.tasks.named(jarTask, Jar::class.java))
                 it.keeps.addAll(*keeps)
             }
         }
@@ -23,7 +23,7 @@ abstract class JarOptimizerExtension {
     fun optimize(jarTask: String, keeps: Provider<out Iterable<String>>) {
         project.afterEvaluate { project ->
             project.tasks.create("optimize${jarTask.capitalize()}", OptimizeJarTask::class.java) {
-                it.jarTask.set(project.tasks.named(jarTask, Jar::class.java))
+                it.setup(project.tasks.named(jarTask, Jar::class.java))
                 it.keeps.addAll(keeps)
             }
         }
@@ -32,7 +32,7 @@ abstract class JarOptimizerExtension {
     fun optimize(jarTask: Provider<out Jar>, vararg keeps: String) {
         project.afterEvaluate { project ->
             project.tasks.create("optimize${jarTask.get().name.capitalize()}", OptimizeJarTask::class.java) {
-                it.jarTask.set(jarTask)
+                it.setup(jarTask)
                 it.keeps.addAll(*keeps)
             }
         }
@@ -41,7 +41,7 @@ abstract class JarOptimizerExtension {
     fun optimize(jarTask: Provider<out Jar>, keeps: Provider<out Iterable<String>>) {
         project.afterEvaluate { project ->
             project.tasks.create("optimize${jarTask.get().name.capitalize()}", OptimizeJarTask::class.java) {
-                it.jarTask.set(jarTask)
+                it.setup(jarTask)
                 it.keeps.addAll(keeps)
             }
         }
@@ -50,7 +50,7 @@ abstract class JarOptimizerExtension {
     fun optimize(jarTask: Jar, vararg keeps: String) {
         project.afterEvaluate { project ->
             project.tasks.create("optimize${jarTask.name.capitalize()}", OptimizeJarTask::class.java) {
-                it.jarTask.set(jarTask)
+                it.setup(jarTask)
                 it.keeps.addAll(*keeps)
             }
         }
@@ -59,7 +59,7 @@ abstract class JarOptimizerExtension {
     fun optimize(jarTask: Jar, keeps: Provider<out Iterable<String>>) {
         project.afterEvaluate { project ->
             project.tasks.create("optimize${jarTask.name.capitalize()}", OptimizeJarTask::class.java) {
-                it.jarTask.set(jarTask)
+                it.setup(jarTask)
                 it.keeps.addAll(keeps)
             }
         }

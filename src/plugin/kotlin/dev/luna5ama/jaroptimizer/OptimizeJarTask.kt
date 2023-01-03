@@ -4,24 +4,23 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.CopyActionProcessingStream
-import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.WorkResult
+import org.gradle.api.tasks.WorkResults
 import org.gradle.jvm.tasks.Jar
 import java.io.File
 
-@Suppress("LeakingThis")
 abstract class OptimizeJarTask : Jar() {
-    @get:Input
-    abstract val jarTask: Property<Jar>
-
     @get:Input
     abstract val keeps: SetProperty<String>
 
     @get:InputFile
-    internal abstract val jarFile: RegularFileProperty
+    abstract val jarFile: RegularFileProperty
 
-    init {
+    fun setup(jarTask: Provider<out Jar>) {
         jarFile.set(jarTask.flatMap { it.archiveFile })
 
         destinationDirectory.set(jarTask.flatMap { it.destinationDirectory })
@@ -29,6 +28,17 @@ abstract class OptimizeJarTask : Jar() {
         archiveAppendix.set(jarTask.flatMap { it.archiveAppendix })
         archiveVersion.set(jarTask.flatMap { it.archiveVersion })
         archiveClassifier.set(jarTask.flatMap { jar -> jar.archiveClassifier.map { "$it-optimized" } })
+        archiveExtension.set("jar")
+    }
+
+    fun setup(jarTask: Jar) {
+        jarFile.set(jarTask.archiveFile)
+
+        destinationDirectory.set(jarTask.destinationDirectory)
+        archiveBaseName.set(jarTask.archiveBaseName)
+        archiveAppendix.set(jarTask.archiveAppendix)
+        archiveVersion.set(jarTask.archiveVersion)
+        archiveClassifier.set(jarTask.archiveClassifier.map { "$it-optimized" })
         archiveExtension.set("jar")
     }
 

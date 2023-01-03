@@ -1,9 +1,11 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.utils.extendsFrom
+
 group = "dev.luna"
 version = "1.2-SNAPSHOT"
 
 plugins {
     kotlin("jvm")
-    application
     `java-gradle-plugin`
     `maven-publish`
     id("com.gradle.plugin-publish").version("1.0.0")
@@ -31,7 +33,10 @@ repositories {
     mavenCentral()
 }
 
-val library: Configuration by configurations.creating
+val library: Configuration by configurations.creating {
+    configurations.implementation.get().extendsFrom(this)
+}
+
 val pluginSourceSet = sourceSets.create("plugin").apply {
     java.srcDir("src/plugin/kotlin")
     resources.srcDir("src/plugin/resources")
@@ -40,13 +45,19 @@ val pluginSourceSet = sourceSets.create("plugin").apply {
 }
 
 dependencies {
-    library("org.apache.bcel:bcel:6.5.0")
+
+    library("org.apache.bcel:bcel:6.6.0")
     library(kotlin("stdlib-jdk8"))
-    implementation(library)
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
 }
 
 tasks {
-    compileKotlin {
+    withType(KotlinCompile::class.java) {
         kotlinOptions.jvmTarget = "1.8"
     }
 
@@ -65,15 +76,10 @@ tasks {
 
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
-        archiveBaseName.set("JarOptimizer")
-        archiveClassifier.set("Standalone")
+        archiveClassifier.set("standalone")
 
         from(sourceSets.main.get().output)
-        from(
-            library.map {
-                if (it.isDirectory) it else zipTree(it)
-            }
-        )
+        from(library.elements.map { set -> set.map { it.asFile }.map { if (it.isDirectory) it else zipTree(it) } })
     }
 
     artifacts {

@@ -1,48 +1,44 @@
 package dev.luna.jaroptimizer
 
-import org.gradle.api.DefaultTask
-import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.internal.file.copy.CopyAction
+import org.gradle.api.internal.file.copy.CopyActionProcessingStream
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
+import org.gradle.api.tasks.*
+import org.gradle.jvm.tasks.Jar
 import java.io.File
 
-abstract class OptimizeJarTask : DefaultTask() {
-    private val entries = project.extensions.getByType(JarOptimizerPluginExtension::class.java).entries
+@Suppress("LeakingThis")
+abstract class OptimizeJarTask : Jar() {
+    @get:Input
+    abstract val jarTask : Property<Jar>
+
+    @get:Input
+    abstract val keeps: SetProperty<String>
+
+    @get:InputFile
+    internal abstract val jarFile: RegularFileProperty
 
     init {
-        group = "build"
-        entries.forEach {
-            dependsOn(it.task)
-        }
+        jarFile.set(jarTask.flatMap { it.archiveFile })
+
+        destinationDirectory.set(jarTask.flatMap { it.destinationDirectory })
+        archiveBaseName.set(jarTask.flatMap { it.archiveBaseName })
+        archiveAppendix.set(jarTask.flatMap { it.archiveAppendix })
+        archiveVersion.set(jarTask.flatMap { it.archiveVersion })
+        archiveClassifier.set(jarTask.flatMap { jar -> jar.archiveClassifier.map { "$it-optimized" } })
+        archiveExtension.set("jar")
     }
 
-    @Suppress("unused")
-    @get:InputFiles
-    val inputJars: FileCollection
-        get() = project.objects.fileCollection().apply {
-            entries.forEach { entry ->
-                from(getJarFiles(entry.task.outputs.files))
-            }
-        }
-
-    private fun getJarFiles(files: FileCollection): List<File> {
-        val list = mutableListOf<File>()
-        files.forEach { file ->
-            if (file.isDirectory) {
-                file.listFiles()!!.filterTo(list) { it.name.endsWith(".jar") }
-            } else if (file.name.endsWith(".jar")) {
-                list.add(file)
-            }
-        }
-        return list
+    override fun createCopyAction(): CopyAction {
+        return RemapJarAction(jarFile.get().asFile, archiveFile.get().asFile, keeps.get().toList())
     }
 
-    @TaskAction
-    fun optimize() {
-        entries.asSequence().flatMap { entry ->
-            getJarFiles(entry.task.outputs.files).map { it to entry.keeps }
-        }.forEach { (jarFile, keeps) ->
-            JarOptimizer().optimize(jarFile, File(jarFile.parentFile, "optimized/${jarFile.name}"), keeps)
+    class RemapJarAction(private val inputFile: File, private val outputFile: File, private val keeps: List<String>) : CopyAction {
+        override fun execute(stream: CopyActionProcessingStream): WorkResult {
+            JarOptimizer().optimize(inputFile, outputFile, keeps)
+            return WorkResults.didWork(true)
         }
     }
 }

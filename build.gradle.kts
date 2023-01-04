@@ -53,6 +53,7 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(8))
     }
+    withSourcesJar()
 }
 
 tasks {
@@ -62,6 +63,10 @@ tasks {
 
     jar {
         from(pluginSourceSet.output)
+    }
+
+    named<Jar>("sourcesJar") {
+        from(pluginSourceSet.allSource)
     }
 
     val standaloneJar by register<Jar>("standaloneJar") {

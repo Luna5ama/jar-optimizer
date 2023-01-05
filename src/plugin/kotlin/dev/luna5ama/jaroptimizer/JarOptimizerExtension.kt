@@ -2,6 +2,7 @@ package dev.luna5ama.jaroptimizer
 
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
 import java.util.*
 import javax.inject.Inject
@@ -63,6 +64,52 @@ abstract class JarOptimizerExtension {
                 it.keeps.addAll(keeps)
             }
         }
+    }
+
+    fun register(jarTaskName: String, keeps: Provider<out Iterable<String>>): TaskProvider<OptimizeJarTask> {
+        return project.tasks.register("optimize${jarTaskName.capitalize()}", OptimizeJarTask::class.java) {
+            it.setup(project.provider { project.tasks.named(jarTaskName, Jar::class.java) }.flatten())
+            it.keeps.addAll(keeps)
+        }
+    }
+
+    fun register(jarTaskName: String, vararg keeps: String): TaskProvider<OptimizeJarTask> {
+        return project.tasks.register("optimize${jarTaskName.capitalize()}", OptimizeJarTask::class.java) {
+            it.setup(project.provider { project.tasks.named(jarTaskName, Jar::class.java) }.flatten())
+            it.keeps.addAll(*keeps)
+        }
+    }
+
+    fun register(jarTask: TaskProvider<out Jar>, vararg keeps: String): TaskProvider<OptimizeJarTask> {
+        return project.tasks.register("optimize${jarTask.name.capitalize()}", OptimizeJarTask::class.java) {
+            it.setup(jarTask)
+            it.keeps.addAll(*keeps)
+        }
+    }
+
+    fun register(jarTask: TaskProvider<out Jar>, keeps: Provider<out Iterable<String>>): TaskProvider<OptimizeJarTask> {
+        return project.tasks.register("optimize${jarTask.name.capitalize()}", OptimizeJarTask::class.java) {
+            it.setup(jarTask)
+            it.keeps.addAll(keeps)
+        }
+    }
+
+    fun register(jarTask: Jar, vararg keeps: String): TaskProvider<OptimizeJarTask> {
+        return project.tasks.register("optimize${jarTask.name.capitalize()}", OptimizeJarTask::class.java) {
+            it.setup(jarTask)
+            it.keeps.addAll(*keeps)
+        }
+    }
+
+    fun register(jarTask: Jar, keeps: Provider<out Iterable<String>>): TaskProvider<OptimizeJarTask> {
+        return project.tasks.register("optimize${jarTask.name.capitalize()}", OptimizeJarTask::class.java) {
+            it.setup(jarTask)
+            it.keeps.addAll(keeps)
+        }
+    }
+
+    private fun <T> Provider<out Provider<T>>.flatten(): Provider<T> {
+        return flatMap { it }
     }
 
     private fun String.capitalize(): String =

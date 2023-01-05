@@ -27,7 +27,7 @@ abstract class OptimizeJarTask : Jar() {
         archiveBaseName.set(jarTask.flatMap { it.archiveBaseName })
         archiveAppendix.set(jarTask.flatMap { it.archiveAppendix })
         archiveVersion.set(jarTask.flatMap { it.archiveVersion })
-        archiveClassifier.set(jarTask.flatMap { jar -> jar.archiveClassifier.map { "$it-optimized" } })
+        archiveClassifier.set(jarTask.flatMap { jar -> jar.archiveClassifier.map { if (it.isEmpty()) "optimized" else "$it-optimized" } })
         archiveExtension.set("jar")
     }
 

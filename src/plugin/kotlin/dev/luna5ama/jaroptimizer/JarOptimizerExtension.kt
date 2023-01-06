@@ -1,5 +1,6 @@
 package dev.luna5ama.jaroptimizer
 
+import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
@@ -80,14 +81,14 @@ abstract class JarOptimizerExtension {
         }
     }
 
-    fun register(jarTask: TaskProvider<out Jar>, vararg keeps: String): TaskProvider<OptimizeJarTask> {
+    fun register(jarTask: NamedDomainObjectProvider<out Jar>, vararg keeps: String): TaskProvider<OptimizeJarTask> {
         return project.tasks.register("optimize${jarTask.name.capitalize()}", OptimizeJarTask::class.java) {
             it.setup(jarTask)
             it.keeps.addAll(*keeps)
         }
     }
 
-    fun register(jarTask: TaskProvider<out Jar>, keeps: Provider<out Iterable<String>>): TaskProvider<OptimizeJarTask> {
+    fun register(jarTask: NamedDomainObjectProvider<out Jar>, keeps: Provider<out Iterable<String>>): TaskProvider<OptimizeJarTask> {
         return project.tasks.register("optimize${jarTask.name.capitalize()}", OptimizeJarTask::class.java) {
             it.setup(jarTask)
             it.keeps.addAll(keeps)

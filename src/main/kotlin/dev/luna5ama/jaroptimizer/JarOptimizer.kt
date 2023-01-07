@@ -3,6 +3,7 @@ package dev.luna5ama.jaroptimizer
 import it.unimi.dsi.fastutil.objects.*
 import org.apache.bcel.Const
 import org.apache.bcel.classfile.*
+import org.apache.bcel.util.SyntheticRepository
 import java.io.DataInputStream
 import java.io.File
 import java.io.InputStream
@@ -153,6 +154,10 @@ class JarOptimizer {
     private class ClassFile(val path: String, val classPath: String, val bytes: ByteArray)
 
     companion object {
+        init {
+            SyntheticRepository.getInstance()
+        }
+
         @JvmStatic
         fun main(args: Array<String>) {
             var input: String? = null

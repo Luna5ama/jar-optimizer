@@ -7,7 +7,6 @@ plugins {
     kotlin("jvm")
     `java-gradle-plugin`
     `maven-publish`
-    id("com.gradle.plugin-publish").version("1.0.0")
     id("dev.fastmc.maven-repo").version("1.0.0")
 }
 
@@ -20,12 +19,6 @@ gradlePlugin {
             implementationClass = "dev.luna5ama.jaroptimizer.JarOptimizerPlugin"
         }
     }
-}
-
-pluginBundle {
-    website = "https://github.com/Luna5ama/jar-optimizer"
-    vcsUrl = "https://github.com/Luna5ama/jar-optimizer"
-    tags = listOf("java", "jar", "optimization")
 }
 
 repositories {

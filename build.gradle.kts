@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "dev.luna5ama"
-version = "1.2-SNAPSHOT"
+version = "1.2.0"
 
 plugins {
     kotlin("jvm")

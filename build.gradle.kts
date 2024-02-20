@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "dev.luna5ama"
-version = "1.2.0"
+version = "1.2.1"
 
 plugins {
     kotlin("jvm")
@@ -37,8 +37,8 @@ val pluginSourceSet = sourceSets.create("plugin").apply {
 }
 
 dependencies {
-    library("it.unimi.dsi:fastutil:8.5.12")
-    library("org.apache.bcel:bcel:6.6.0")
+    library("it.unimi.dsi:fastutil:8.5.13")
+    library("org.apache.bcel:bcel:6.8.1")
     library(kotlin("stdlib-jdk8"))
 }
 

@@ -1,5 +1,5 @@
 # JarOptimizer
-Simple jar file optimizing tool.
+Simple jar optimizing tool that removes unused classes.
 
 ## Command line arguments
 | Argument                | Value            | Effect                             |

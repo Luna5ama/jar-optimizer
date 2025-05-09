@@ -7,12 +7,14 @@ plugins {
 }
 
 gradlePlugin {
+    website.set("https://github.com/Luna5ama/jar-optimizer")
+    vcsUrl.set("https://github.com/Luna5ama/jar-optimizer")
     plugins {
         create("jar-optimizer") {
             id = "dev.luna5ama.jar-optimizer"
+            implementationClass = "dev.luna5ama.jaroptimizer.JarOptimizerPlugin"
             displayName = "Jar Optimizer"
             description = "Simple jar file optimizing tool"
-            implementationClass = "dev.luna5ama.jaroptimizer.JarOptimizerPlugin"
         }
     }
 }

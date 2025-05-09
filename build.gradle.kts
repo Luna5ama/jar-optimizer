@@ -1,13 +1,9 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 group = "dev.luna5ama"
-version = "1.2.1"
+version = "1.2.2"
 
 plugins {
-    kotlin("jvm")
-    `java-gradle-plugin`
+    `kotlin-dsl`
     `maven-publish`
-    id("dev.fastmc.maven-repo").version("1.0.0")
 }
 
 gradlePlugin {
@@ -50,10 +46,6 @@ java {
 }
 
 tasks {
-    withType(KotlinCompile::class.java) {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-
     jar {
         from(pluginSourceSet.output)
     }

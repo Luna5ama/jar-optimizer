@@ -15,6 +15,7 @@ gradlePlugin {
             implementationClass = "dev.luna5ama.jaroptimizer.JarOptimizerPlugin"
             displayName = "Jar Optimizer"
             description = "Simple jar file optimizing tool"
+            tags.addAll("java", "jar", "jvm", "build")
         }
     }
 }

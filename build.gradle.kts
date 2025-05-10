@@ -1,5 +1,10 @@
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
+
 group = "dev.luna5ama"
 version = "1.2.2"
+
+project.extraProperties.set("gradle.publish.key", project.property("luna5ama.gradle.publish.key"))
+project.extraProperties.set("gradle.publish.secret", project.property("luna5ama.gradle.publish.secret"))
 
 plugins {
     `kotlin-dsl`
